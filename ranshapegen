@@ -1,0 +1,153 @@
+<html>
+  <body ng-app="svgGenApp">
+    <a
+       id="gist"
+       class="btn"
+       
+
+    </a>
+    <div
+         ng-controller="svgCtrl"
+         class="wide"
+         load-data>
+
+      <h3>{{title}}</h3>
+      <p class="container">{{instructions}}</p>
+      <div id="output" class="col-xs-12 col-sm-12 col-md-12 col-lg-12"></div>
+      <span us-spinner spinner-key="spinner-1"></span>
+    </div>
+  </body>
+</html>
+
+
+
+html
+
+
+
+
+body
+  h3
+    text-align: center
+  p
+    font-size: 1.2em
+  #gist
+    position: absolute
+    top: 0
+    right: 0
+  .wide
+    width: 100%
+  a:hover
+    text-decoration: none
+    font-weight: bold
+  #output
+    #plot
+      width: 100%
+      height: 50vh
+      .area
+        fill: rgba(240,230,140,0.8)
+        stroke-width: 0
+      circle, rect
+        stroke: black
+        stroke-width: 2
+        
+        
+        
+        css
+        
+        
+        
+        
+        
+        var app = angular.module('svgGenApp',['angularSpinner']);
+app.controller('svgCtrl', ($scope, $window, usSpinnerService) => {
+  $scope.title = 'Random shape generator';
+  $scope.instructions = 'Hit highlighted region to generate an object of square or circular shape randomly. The object is randomly coloured, randomly positioned within svg object bounds, 20px<=(square side)<=150px, 30px<=(circle diameter)<=200px. Hit randomly generated object to dismiss it.';
+  $scope.diameter = Math.floor(Math.random()*(200-30+1))+30;
+  $scope.side = Math.floor(Math.random()*(150-20+1))+20;
+  $scope.genRnd = () => {
+    $scope.diameter = Math.floor(Math.random()*(200-30+1))+30;
+    $scope.side = Math.floor(Math.random()*(150-20+1))+20;
+  }
+  $scope.rect = '<rect width="100%" y="0" height="100%" class="area" ng-click="genRnd()" generate-shape/>';
+  $scope.makeSVG = (tag, attrs) => {
+    var svg = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for (var k in attrs) svg.setAttribute(k, attrs[k]);
+    return svg;
+  };
+  $scope.dismiss = ($event) => {
+    $event.target.remove();
+  }
+  $scope.getRandomColor = () => {
+    function c(){return Math.floor(Math.random()*256).toString(16);}
+    var colorHEX = "#"+c()+c()+c();
+    if (colorHEX.length < 7) colorHEX += "c";
+    return colorHEX;
+  }
+  $scope.refreshPage = () => {
+    window.location.reload(false);
+  };
+  $scope.resized = false;
+  $scope.windowResized = () => {
+    $scope.$apply(() => {$scope.resized = true;});
+    usSpinnerService.spin('spinner-1');
+    setTimeout(() => {$scope.initResize();},750);
+  };
+  $scope.initResize = () => {
+    $scope.$apply(() => {
+      $scope.resized = false;
+    });
+    $scope.refreshPage();
+  };
+});
+
+app.directive("loadData", ($compile) => {
+  return (scope, el, attrs) => {
+    $('#output').append($compile('<svg id="plot">'+scope.rect+'</svg>')(scope));
+    scope.resized = false;
+    $(window).on('resize',() => {
+      scope.windowResized();
+    });
+  }
+});
+app.directive('generateShape',($compile) => {
+  return (scope, el, attrs) => {
+    el.bind('click', () => {
+      var areaHeight = $('#output').height();
+      var areaWidth = $('#output').width();
+      console.log(areaHeight+' | '+areaWidth);
+      var cx = Math.floor(Math.random()*((areaWidth-4-scope.diameter/2)-(4+scope.diameter/2)+1)+(4+scope.diameter/2));
+      var cy = Math.floor(Math.random()*((areaHeight-4-scope.diameter/2)-(4+scope.diameter/2)+1)+(4+scope.diameter/2));
+      var circle = scope.makeSVG('circle', {
+        cx:cx,
+        cy:cy,
+        r:scope.diameter/2,
+        //stroke:'black',
+        //'stroke-width':2,
+        fill:scope.getRandomColor(),
+        'ng-click':'dismiss($event)'
+      });
+      var x = Math.floor(Math.random()*((areaWidth-scope.side-4)-(4+scope.side)+1)+(4+scope.side));
+      var y = Math.floor(Math.random()*((areaHeight-scope.side-4)-(4+scope.side)+1)+(4+scope.side));
+      var square = scope.makeSVG('rect', {
+        x:x,
+        y:y,
+        width:scope.side,
+        height:scope.side,
+        //stroke:'black',
+        //'stroke-width':2,
+        fill:scope.getRandomColor(),
+        'ng-click':'dismiss($event)'
+      });
+      var shapeSelector = Math.floor(Math.random()*(1-0+1)+0);
+      console.log('shapeSelector: '+shapeSelector);
+      if (shapeSelector == 0) $('#plot').append($compile(circle)(scope));
+      else $('#plot').append($compile(square)(scope));
+    });
+  }
+});
+
+
+
+
+js

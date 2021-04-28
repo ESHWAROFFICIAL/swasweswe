@@ -1,0 +1,195 @@
+<form id="theForm" onsubmit="AddShape(event)">
+  <select id="shape" onchange="SelectShape(this)">
+      <option selected disabled>Choose Your Shape</option>
+      <option value="circle">Circle</option>
+      <option value="square">Square</option>
+      <option value="rectangle">Rectangle</option>
+    </select>
+  <div id="circleParms" hidden>
+    Radius of the circle (10-50):
+    <input type="text" name="radius">
+  </div>
+  <div id="squareParms" hidden>
+    Length of a side of the square (10-50):
+    <input type="text" name="sqSideLen">
+  </div>
+  <div id="rectangleParms" hidden>
+    Width of the rectangle (10-50):
+    <input type="text" name="rectWidth">
+    <br> Height of the rectangle (10-50):
+    <input type="text" name="rectHeight">
+  </div>
+  <p>What color should the shape be?
+    <select id='color'>
+        <option value='red'>Red</option>
+        <option value='lime'>Lime</option>
+        <option value='teal'>Teal</option>
+      </select>
+  </p>
+  <p>What direction should the shape move?
+    <select id='direction'>
+        <option value='u'>Up</option>
+        <option value='d'>Down</option>
+        <option value='l'>Left</option>
+        <option value='r'>Right</option>
+      </select>
+  </p>
+  <input type="submit" value="Add the Shape">
+</form>
+<div id=theShapes></div>
+<button onclick="(function () { two.playing = false; })()">Stop Motion</button>
+<br>
+<button onclick="(function () { two.playing = true; })()">Start Motion</button>
+<button onclick="ClearShapes()">Clear all Shapes</button>
+<br>
+<br>
+
+
+
+html
+
+
+
+
+body{
+  background-image: url('http://www.webdesignhot.com/wp-content/uploads/2015/11/Abstract-Colorful-Geometric-Shapes-Background-Vector-Illustration.jpg');
+}
+p{
+  color:white
+}
+div{
+  color:white
+}
+
+
+
+css
+
+
+
+
+const spaceWidth = 400;
+const spaceHeight = 400;
+
+var myShapes = [];
+
+var elem = document.getElementById('theShapes');
+var two = new Two({
+  width: spaceWidth,
+  height: spaceHeight
+}).appendTo(elem)
+
+two.makeRectangle(spaceWidth / 2, spaceHeight / 2, spaceWidth, spaceHeight)
+two.update();
+
+two.bind("update", moveShapes).play()
+
+function AddShape(event) {
+  event.preventDefault();
+
+  var form = event.target;
+
+  var x = randomLocation(spaceWidth);
+  var y = randomLocation(spaceHeight);
+
+  if (form.elements['shape'].value == 'circle') {
+    var newShape = two.makeCircle(x,
+      y,
+      form.elements['radius'].value);
+  } else if (form.elements['shape'].value == "square") {
+    var newShape = two.makeRectangle(x,
+      y,
+      form.elements['sqSideLen'].value,
+      form.elements['sqSideLen'].value)
+  } else if (form.elements['shape'].value == "rectangle") {
+    var newShape = two.makeRectangle(x,
+      y,
+      form.elements['rectWidth'].value,
+      form.elements['rectHeight'].value)
+  }
+
+  newShape.fill = form.elements['color'].value;
+
+  var shapeInfo = {
+    shape: newShape,
+    direction: form.elements['direction'].value
+  }
+
+  myShapes.push(shapeInfo)
+
+  HideAll()
+  form.reset()
+
+}
+
+function HideAll() {
+  document.getElementById('circleParms').hidden = true
+  document.getElementById('squareParms').hidden = true
+  document.getElementById('rectangleParms').hidden = true
+}
+
+function SelectShape(s) {
+  HideAll()
+  if (s.value == 'circle') {
+    document.getElementById('circleParms').hidden = false
+  } else if (s.value == "square") {
+    document.getElementById('squareParms').hidden = false
+  } else if (s.value == "rectangle") {
+    document.getElementById('rectangleParms').hidden = false
+  }
+
+}
+
+function randomLocation(max) {
+  return Math.floor(Math.random() * (max + 1));
+}
+
+  function moveShapes() {
+    
+    myShapes.map(move_a_shape)
+  }
+
+  function move_a_shape(item) {
+    
+    var s = item.shape
+    var d = item.direction
+
+    if (item.direction == 'u') {
+      item.shape.translation.y -= 1
+    } else if (item.direction == 'd') {
+      item.shape.translation.y += 1
+    } else if (item.direction == 'l') {
+      item.shape.translation.x -= 1
+    } else if (item.direction == 'r') {
+      item.shape.translation.x += 1
+    }
+    if (item.shape.translation.x > spaceWidth) {
+      item.shape.translation.x = 1
+    } else if (item.shape.translation.x < 0) {
+      item.shape.translation.x = spaceWidth
+    }
+    if (item.shape.translation.y > spaceHeight) {
+      item.shape.translation.y = 1
+    } else if (item.shape.translation.y < 0) {
+      item.shape.translation.y = spaceHeight
+    }
+
+  }
+
+
+function ClearShapes() {
+  myShapes.map((function (s){ two.remove(s.shape); }))
+  myShapes = []
+  two.update()
+}
+function HideParms() {
+    document.getElementById('circleParms').hidden = true
+    document.getElementById('squareParms').hidden = true
+    document.getElementById('rectangleParms').hidden = true
+}
+
+
+
+
+
+js

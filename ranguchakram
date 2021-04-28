@@ -1,0 +1,63 @@
+ <script src="libraries/p5.js" type="text/javascript"></script>
+
+    <script src="libraries/p5.dom.js" type="text/javascript"></script>
+    <script src="libraries/p5.sound.js" type="text/javascript"></script>
+
+    <script src="sketch.js" type="text/javascript"></script>
+
+    <style> body {padding: 0; margin: 0;} canvas {vertical-align: top;} </style>
+  </head>
+  <body>
+  </body>
+</html>
+
+
+
+
+html
+
+
+
+
+body{
+  background-color:black
+}
+body 
+{padding: 0; margin: 0;}
+
+canvas 
+{vertical-align: top;}
+
+
+
+css
+
+
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  background('#42414F');
+  strokeWeight(0.25);
+  strokeCap(SQUARE);
+  frameRate(30);
+}
+
+function draw() {
+  for (var i = 0; i < width; i++) {
+    var w = random(width*1.5); 
+    var colorList = [ "red", "orange",  "green", "blue", "purple"]; 
+    var c = round(random(4));   
+    stroke(colorList[c]); 
+    noFill();
+    arc( width/2, height/2, w, w,random(45), random(45) );
+    smooth(); 
+    }
+}
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+
+
+
+
+js

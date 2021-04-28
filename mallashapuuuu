@@ -1,0 +1,167 @@
+.container.purple#elementId
+.container.white#elementId2
+
+.clickanywhere Click Anywhere
+
+
+
+
+html
+
+
+
+
+body{
+	background: #f8f8f8;
+	margin: 0;
+	padding: 0;
+}
+.container{
+	height:100vh;
+	background: red;
+	overflow: hidden;
+	position: relative;
+	&.purple{
+		/* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#feb47b+0,ff7e5f+100 */
+background: rgb(254,180,123); /* Old browsers */
+background: -moz-linear-gradient(top, rgba(254,180,123,1) 0%, rgba(255,126,95,1) 100%); /* FF3.6-15 */
+background: -webkit-linear-gradient(top, rgba(254,180,123,1) 0%,rgba(255,126,95,1) 100%); /* Chrome10-25,Safari5.1-6 */
+background: linear-gradient(to bottom, rgba(254,180,123,1) 0%,rgba(255,126,95,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#feb47b', endColorstr='#ff7e5f',GradientType=0 ); /* IE6-9 */
+	}
+	&.white{
+		background: #f2f2f2;
+	}
+	.boxWrapper{
+		position: absolute;
+		width: 50px;
+		height: 50px;
+		svg{
+			position: absolute;
+			top: 0;
+			left: 0;
+			bottom: 0;
+			right: 0;
+			margin: auto;
+			border-radius: 50%;
+			width: 100%;
+			margin-left: 50%;
+			transform: translateX(-50%) translateY(-50%);
+			margin-top: 50%;
+			height: 100%;
+		}
+	}
+}
+
+.clickanywhere{
+	position: fixed;
+	height: 30px;
+	background: rgba(255, 255, 255, 0.4);
+	width:120px;
+	z-index:100;
+	bottom:40px;
+	left:0;
+	right:0;
+	text-align: center;
+	padding-top: 10px;
+	margin: auto;
+}
+
+
+
+
+css
+
+
+
+
+
+var cursorX;
+var cursorY;
+var seconds = 0;
+var appendSeconds = document.getElementById("timer");
+var Interval;
+var elementCount = 0;
+var randomnumber = 0;
+var objhtml = 0;
+var obj2html = 0;
+
+var circleHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 73 73"><defs><linearGradient id="combined-shape-a" x1="0%" y1="0%" y2="100%"><stop offset="0%" stop-color="#FFF"/><stop offset="100%" stop-color="#F0F0F0"/></linearGradient></defs><path fill="url(#combined-shape-a)" fill-rule="evenodd" d="M36.5,73 C16.3416066,73 0,56.6583934 0,36.5 C0,16.3416066 16.3416066,0 36.5,0 C56.6583934,0 73,16.3416066 73,36.5 C73,56.6583934 56.6583934,73 36.5,73 Z M36.5,59 C48.9264069,59 59,48.9264069 59,36.5 C59,24.0735931 48.9264069,14 36.5,14 C24.0735931,14 14,24.0735931 14,36.5 C14,48.9264069 24.0735931,59 36.5,59 Z"/></svg>';
+var circleColorHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 73 73"><defs><linearGradient id="new-a" x1="0%" y1="0%" y2="100%"><stop offset="0%" stop-color="#6FD5E3"/><stop offset="100%" stop-color="#4970F7"/></linearGradient></defs><path fill="url(#new-a)" fill-rule="evenodd" d="M36.5,73 C16.3416066,73 0,56.6583934 0,36.5 C0,16.3416066 16.3416066,0 36.5,0 C56.6583934,0 73,16.3416066 73,36.5 C73,56.6583934 56.6583934,73 36.5,73 Z M36.5,59 C48.9264069,59 59,48.9264069 59,36.5 C59,24.0735931 48.9264069,14 36.5,14 C24.0735931,14 14,24.0735931 14,36.5 C14,48.9264069 24.0735931,59 36.5,59 Z"/></svg>';
+var plusHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 70 70"><defs><linearGradient id="cross-a" x1="0%" y1="0%" y2="100%"><stop offset="0%" stop-color="#FFF"/><stop offset="100%" stop-color="#F0F0F0"/></linearGradient></defs><path fill="url(#cross-a)" fill-rule="evenodd" d="M42,43 L70,43 L70,28 L42,28 L42,0 L27,0 L27,28 L0,28 L0,43 L27,43 L27,70 L42,70 L42,43 Z"/></svg>';
+var plusColorHtml = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 70 70"><defs><linearGradient id="crosscolor-a" x1="3.089%" y1="3.089%" y2="100%"><stop offset="0%" stop-color="#73C9E8"/><stop offset="100%" stop-color="#4E7FF4"/></linearGradient></defs><path fill="url(#crosscolor-a)" fill-rule="evenodd" d="M42,43 L70,43 L70,28 L42,28 L42,0 L27,0 L27,28 L0,28 L0,43 L27,43 L27,70 L42,70 L42,43 Z"/></svg>';
+var squiggleHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 295 61"><defs><linearGradient id="sqiggle-a" x1="0%" y1="0%" y2="100%"><stop offset="0%" stop-color="#FFF"/><stop offset="100%" stop-color="#F0F0F0"/></linearGradient></defs><path fill="url(#sqiggle-a)" fill-rule="evenodd" d="M244.552038,38.9454365 L205.606602,-4.08562073e-14 L205.552038,0.0545635174 L205.497475,-4.08562073e-14 L166.552038,38.9454365 L127.606602,-4.08562073e-14 L127.552038,0.0545635174 L127.497475,-4.08562073e-14 L88.5520382,38.9454365 L49.6066017,-4.08562073e-14 L49.5520382,0.0545635174 L49.4974747,-4.08562073e-14 L7.81597009e-14,49.4974747 L10.6066017,60.1040764 L49.5520382,21.1586399 L88.4974747,60.1040764 L88.5520382,60.0495129 L88.6066017,60.1040764 L127.552038,21.1586399 L166.497475,60.1040764 L166.552038,60.0495129 L166.606602,60.1040764 L205.552038,21.1586399 L244.497475,60.1040764 L244.552038,60.0495129 L244.606602,60.1040764 L294.104076,10.6066017 L283.497475,-4.08562073e-14 L244.552038,38.9454365 Z"/></svg>';
+var squiggleColorHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 295 61"><defs><linearGradient id="sqigglecolor-a" x1="0%" x2="98.001%" y1="0%" y2="98.001%"><stop offset="0%" stop-color="#6FD5E3"/><stop offset="100%" stop-color="#4970F7"/></linearGradient></defs><path fill="url(#sqigglecolor-a)" fill-rule="evenodd" d="M244.552038,118.945436 L205.606602,80 L205.552038,80.0545635 L205.497475,80 L166.552038,118.945436 L127.606602,80 L127.552038,80.0545635 L127.497475,80 L88.5520382,118.945436 L49.6066017,80 L49.5520382,80.0545635 L49.4974747,80 L7.81597009e-14,129.497475 L10.6066017,140.104076 L49.5520382,101.15864 L88.4974747,140.104076 L88.5520382,140.049513 L88.6066017,140.104076 L127.552038,101.15864 L166.497475,140.104076 L166.552038,140.049513 L166.606602,140.104076 L205.552038,101.15864 L244.497475,140.104076 L244.552038,140.049513 L244.606602,140.104076 L294.104076,90.6066017 L283.497475,80 L244.552038,118.945436 Z" transform="translate(0 -80)"/></svg>';
+var crossHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 61 62"><defs><linearGradient id="cross-a" x1="0%" y1="0%" y2="100%"><stop offset="0%" stop-color="#FFF"/><stop offset="100%" stop-color="#F0F0F0"/></linearGradient></defs><path fill="url(#cross-a)" fill-rule="evenodd" d="M42,43 L70,43 L70,28 L42,28 L42,0 L27,0 L27,28 L0,28 L0,43 L27,43 L27,70 L42,70 L42,43 Z" transform="rotate(45 37.828 28.172)"/></svg>';
+var crossColorHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 61 62"><defs><linearGradient id="crosscolor-a" x1="3.089%" y1="3.089%" y2="100%"><stop offset="0%" stop-color="#73C9E8"/><stop offset="100%" stop-color="#4E7FF4"/></linearGradient></defs><path fill="url(#crosscolor-a)" fill-rule="evenodd" d="M38,39 L66,39 L66,24 L38,24 L38,-4 L23,-4 L23,24 L-4,24 L-4,39 L23,39 L23,66 L38,66 L38,39 Z" transform="rotate(45 31 31)"/></svg>';
+
+document.addEventListener("click", clickDocument);
+document.addEventListener("mousedown", mouseDown);
+document.addEventListener("mouseup", mouseUp);
+
+function clickDocument(e) {
+	elementCount++;
+}
+
+function mouseDown(e) {
+	
+  cursorX = e.pageX;
+  cursorY = e.pageY;
+	
+	randomnumber = Math.floor(Math.random() * 4) + 1;
+	console.log(randomnumber);
+	if(randomnumber == 1){
+		objhtml = circleHTML;
+		obj2html = circleColorHTML;
+	}else if(randomnumber == 2){
+		objhtml = plusHTML;
+		obj2html = plusColorHtml;
+	}else if(randomnumber == 3){
+		objhtml = squiggleHTML;
+		obj2html = squiggleColorHTML;
+	}else{
+		objhtml = crossHTML;
+		obj2html = crossColorHTML;
+	}
+	
+	
+	var obj = document.createElement('div');
+	obj.className = "boxWrapper boxWrapper"+elementCount;
+	obj.style.cssText = 'top:'+(cursorY - 25)+'px;left:'+(cursorX - 25)+'px;';
+	obj.innerHTML = objhtml;
+	document.getElementById("elementId").appendChild(obj);
+	
+	h = document.getElementById('elementId2').offsetHeight;
+	
+	var obj2 = obj.cloneNode(true);
+	obj2.style.cssText = 'top:'+(cursorY - 25 - h)+'px;left:'+(cursorX - 25)+'px;';
+	obj2.innerHTML = obj2html;
+	document.getElementById("elementId2").appendChild(obj2);
+	
+	Interval = setInterval(startTimer, 10);
+	
+}
+
+function mouseUp() {
+	seconds = 0;
+	clearInterval(Interval);
+}
+
+function startTimer () {  
+	seconds++;
+	console.log(seconds);
+	var createdObj = document.getElementsByClassName("boxWrapper"+elementCount);
+	if(seconds < 200){
+		for (var i = 0; i < createdObj.length; i++) {
+			createdObj[i].childNodes[0].style.width = ''+(50 + Number(seconds))+'px';
+			createdObj[i].childNodes[0].style.height = ''+(50 + Number(seconds))+'px';
+    }
+	}else{
+		mouseUp();
+	}
+}
+
+
+
+
+js

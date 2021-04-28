@@ -1,0 +1,249 @@
+<div id="app" ref="app" >
+  <p>{{debugString}}</p>
+  <canvas id="renderCanvas" ref="renderCanvas" ></canvas>
+  <form id="controls" ref="controls" v-on:change="update()">
+    Plot to : 
+    <input v-model="plotToShape" type="radio" id="circle" value="circle" />
+    <label for="circle">Circle</label>
+    <input v-model="plotToShape" type="radio" id="egg" value="egg" />
+    <label for="egg">Egg</label>
+    . Num points :
+    <input v-model="numPoints" type="number" name="quantity" min="3" max="40">
+    <button type="button" v-on:click="update()">render</button>
+</form>
+  
+</div>
+
+
+
+
+html
+
+
+
+
+html, body, #app {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: Helvetica,Arial,sans-serif;
+  background-color:#179ed7;
+}
+
+#controls{
+  position:absolute;
+  width:100%;
+  height:10%;
+  text-align:center;
+  bottom : 2%;
+  padding : .5em;
+  background-color:#005d30;
+  font-weight:bold;
+}
+
+#renderCanvas{
+  position:absolute;
+}
+
+
+
+
+
+css
+
+
+
+
+
+//=======:: MathUtil ::=======
+window.MathUtil = {};
+MathUtil.PI2 = Math.PI * 2;
+MathUtil.clamp = function(value, min, max){
+  return Math.max(min, Math.min(value, max));
+};
+MathUtil.interpolate = function(normal, min, max){
+  return min + (max - min) * normal;
+};
+
+//=======:: Shape Store ::=======
+window.ShapeStore = {};
+
+ShapeStore.renderRandomRadiusPoints = function(canvas, numPoints){
+  var context = canvas.getContext("2d");
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  
+  var size = Math.min(canvas.width, canvas.height) * .9;
+  var bounds = {
+    x:canvas.width/2 - size/2, 
+    y:canvas.height/2 - size/2, 
+    width:size, height:size
+  };
+  this.renderPoints(canvas, this.getCirclePoints(bounds, numPoints, .2));
+  this.renderPoints(canvas, this.getRandomRadiusPoints(bounds, numPoints, .2));
+};
+
+ShapeStore.renderRandomRadiusEggPoints = function(canvas, numPoints){
+  var context = canvas.getContext("2d");
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  
+  var size = Math.min(canvas.width, canvas.height) * .9;
+  var bounds = {
+    x:canvas.width/2 - size/2, 
+    y:canvas.height/2 - size/2, 
+    width:size, height:size
+  };
+  this.renderPoints(canvas, this.getEggPoints(bounds, numPoints, .2));
+  this.renderPoints(canvas, this.getRandomRadiusEggPoints(bounds, numPoints, .2));
+};
+
+ShapeStore.renderPoints = function(canvas, points){
+  var context = canvas.getContext("2d");
+  context.beginPath();
+  context.strokeStyle = "#FFFFFF";
+  context.lineWidth = 3;
+  context.moveTo(points[0], points[1]);
+  for(var i=2; i<points.length; i+=2){
+    context.lineTo(points[i], points[i+1]);    
+  }
+  context.closePath();
+  context.stroke();
+};
+
+ShapeStore.getCirclePoints = function(bounds, numPoints){
+  var points = [], radian, 
+      radius = Math.min(bounds.width, bounds.height) * .5,
+      increment = MathUtil.PI2 / numPoints,
+      center =  {x : bounds.x + bounds.width *.5, y: bounds.y + bounds.height *.5};
+  for(var i=0; i < numPoints; i++){
+    radian = i * increment;
+    points.push(
+      center.x + Math.cos(radian) * radius,
+      center.y + Math.sin(radian) * radius
+    );
+  }
+  return points;
+};
+
+ShapeStore.getRandomRadiusPoints = function(bounds, numPoints, minRadiusNormal){
+  minRadiusNormal = minRadiusNormal || .1;
+  minRadiusNormal = MathUtil.clamp(minRadiusNormal, .1, .99);
+  var radian = 0, increment = MathUtil.PI2 / numPoints,
+      radius = Math.min(bounds.width, bounds.height) * .5,
+      minRadius = radius * minRadiusNormal,
+      currentRadius = radius,
+      center = {x:bounds.x + bounds.width/2, y:bounds.y + bounds.height/2},
+      points = [];
+  while(radian < MathUtil.PI2){
+    currentRadius = minRadius + Math.random() * (radius - minRadius);
+    points.push(
+      center.x + Math.cos(radian) * currentRadius,
+      center.y + Math.sin(radian) * currentRadius
+    );
+    radian += increment;
+  }
+  return points;
+};
+
+ShapeStore.getEggPoints = function(bounds, numPoints){
+  var i, topHeight = Math.floor(bounds.height * .666),
+      bottomHeight = Math.floor(bounds.height - topHeight),
+      points = [], radian,
+      increment = MathUtil.PI2 / numPoints,
+      halfWidth = Math.floor(bounds.width * .5),
+      yRadius,
+      center = {
+        x : Math.floor(bounds.x + bounds.width/2), 
+        y: Math.floor(bounds.y + topHeight)
+      };
+  for(i=0; i < numPoints; i++){
+    radian = i * increment;
+    yRadius = radian < Math.PI ? bottomHeight : topHeight;
+    points.push(
+      center.x + Math.cos(radian) * halfWidth,
+      center.y + Math.sin(radian) * yRadius
+    );
+  }
+  return points;
+};
+
+ShapeStore.getRandomRadiusEggPoints = function(bounds, numPoints, minRadiusNormal){
+  minRadiusNormal = minRadiusNormal || .1;
+  minRadiusNormal = MathUtil.clamp(minRadiusNormal, .1, .99);
+  var i, topHeight = Math.floor(bounds.height * .666),
+      bottomHeight = Math.floor(bounds.height - topHeight),
+      points = [], radian,
+      increment = MathUtil.PI2 / numPoints,
+      halfWidth = Math.floor(bounds.width * .5),
+      center = {
+        x : Math.floor(bounds.x + bounds.width/2), 
+        y: Math.floor(bounds.y + topHeight)
+      },
+      minXRadius = Math.floor(halfWidth * minRadiusNormal),
+      maxXRadius = halfWidth - minXRadius,
+      minYRadius, maxYRadius, radiusNormal;
+  for(i=0; i < numPoints; i++){
+    radian = i * increment;
+    radiusNormal = Math.random();
+    if(radian < Math.PI) {
+      minYRadius = bottomHeight * minRadiusNormal;
+      maxYRadius = bottomHeight;
+    }else{
+      minYRadius = topHeight * minRadiusNormal;
+      maxYRadius = topHeight;
+    }
+    points.push(
+      center.x + Math.cos(radian) * MathUtil.interpolate(radiusNormal, minXRadius, halfWidth),
+      center.y + Math.sin(radian) * MathUtil.interpolate(radiusNormal, minYRadius, maxYRadius)
+    );
+  }
+  return points;
+};
+
+
+//=======:: App ::=======
+var app = new Vue({
+  el: '#app',
+  data: {
+    debugString : "",
+    plotToShape : "circle",
+    numPoints : 10
+  },
+  methods: {
+    //I don't know why this isn't firing?! Anyone?
+    mounted : function(){
+      console.log("mounted");
+      this.debugString = "mounted";
+      this.update();
+    },
+    update : function(){
+      console.log("update");
+      var app = this.$refs.app, 
+          canvas = this.$refs.renderCanvas;
+      var maxHeight =  app.offsetHeight * .8;
+      var size = Math.min(app.offsetWidth, maxHeight);
+      canvas.width = canvas.height = size; 
+      canvas.style.left = app.offsetWidth / 2 - size / 2 + "px";
+      canvas.style.top = maxHeight / 2 - size / 2 + "px";
+      if(this.plotToShape=="circle"){
+        ShapeStore.renderRandomRadiusPoints(canvas, this.numPoints);
+      }else{
+        ShapeStore.renderRandomRadiusEggPoints(canvas, this.numPoints);
+      }
+    }
+  }
+});
+
+var firstRender = function(){
+  if(app && app.update){
+    app.update();
+  }else{
+    requestAnimationFrame(firstRender);
+  }
+};
+firstRender();
+
+
+
+
+js

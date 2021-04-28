@@ -1,0 +1,196 @@
+<div id="color">
+  <div>
+    <div class="text" id="text1"></div>
+    <hr>
+    <div class="text" id="text2"></div>
+    <hr>
+    <div class="text" id="text3"></div>
+  </div>
+</div>
+<button id="new">
+  <span>+</span>
+</button>
+
+
+
+html
+
+
+
+* {
+  margin: 0;
+  font-family: 'Libre Franklin', sans-serif;
+  font-size: 20px;
+}
+
+hr {
+  margin: 8px;
+}
+
+#color {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  background: white;
+  align-items: center;
+  transition: background 1s;
+}
+
+#color > div {
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  padding: 10px;
+  border-radius: 5px;
+  background: white;
+  border: solid 1px black;
+  cursor: text;
+}
+
+#color .text {
+  margin: auto;
+}
+
+#new {
+  position: fixed;
+  cursor: pointer;
+  bottom: 20px;
+  right: 20px;
+  width:  50px;
+  height: 50px;
+  background: white;
+  border: solid 1px;
+  border-radius: 50%;
+  box-shadow: 0 4px 10px;
+  transition: background 0.5s;
+}
+
+#new:focus {
+  outline: none;
+}
+
+#new > span {
+  color: white;
+  text-shadow:
+    -1px -1px 0 #000,  
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
+    1px 1px 0 #000;
+}
+
+
+
+css
+
+
+
+
+const qs = q => document.querySelector(q);
+
+const numericVal = () => Math.round((Math.random()) * 15);
+const hexVal = n => n < 10 ? n : toLetter(n);
+const toLetter = n => String.fromCharCode(65 + (n - 10));
+const negativeVal = n => Math.abs(15 - n);
+const getXX = () => [numericVal(), numericVal()];
+const getNX = arr => [negativeVal(arr[0]), negativeVal(arr[1])];
+const getHexString = arr => `#${hexVal(arr[0])}${hexVal(arr[1])}${hexVal(arr[2])}${hexVal(arr[3])}${hexVal(arr[4])}${hexVal(arr[5])}`;
+
+const getRGBObj = arr => {
+  const R = (arr[1]) + (arr[0] * Math.pow(16, 1));
+  const G = (arr[3]) + (arr[2] * Math.pow(16, 1));
+  const B = (arr[5]) + (arr[4] * Math.pow(16, 1));
+  return {
+    R,
+    G,
+    B
+  };
+};
+const getRGBString = ({R, G, B}) => `rgb(${R}, ${G}, ${B})`;
+const getHSLObj = ({R, G, B}) => {
+  const _R = R / 255;
+  const _B = B / 255;
+  const _G = G / 255;
+  const max = Math.max(Math.max(_R, _G), _B);
+  const min = Math.min(Math.min(_R, _G), _B);
+  
+  const round = n => Math.round(n*100);
+  
+  const lum = (max + min) / 2;
+  const LUMINANCE = round(lum);
+  
+  const bigLum = (max, min) => (max - min)/(2.0 - max - min);
+  const smLum  = (max, min) => (max - min)/(max + min);
+  
+  const sat = lum < 0.5 ? smLum(max, min) : bigLum(max, min);
+  const SATURATION = round(sat);
+  
+  const rMax = (g, b, max, min) => (g - b)/(max - min);
+  const gMax = (r, b, max, min) => 2.0 + (b - r)/(max - min);
+  const bMax = (r, g, max, min) => 4.0 + (r - g)/(max - min);
+  
+  let hue = null;
+  if (_R === max) {
+    hue = rMax(_G, _B, max, min);
+  }
+  else if (_G === max) {
+    hue = gMax(_R, _B, max, min)
+  }
+  else if (_B === max) {
+    hue = bMax(_R, _G, max, min)
+  }
+  
+  const degs = hue * 60;
+  
+  const HUE = Math.round(degs < 0 ? degs + 360 : degs);
+  
+  return {
+    LUMINANCE,
+    SATURATION,
+    HUE
+  };
+};
+const getHSLString = ({HUE, SATURATION, LUMINANCE}) => (
+  `hsl(${HUE}, ${SATURATION}%, ${LUMINANCE}%)`
+);
+
+const generateColors = () => {
+  const rr = getXX();
+  const gg = getXX();
+  const bb = getXX();
+  
+  const nr = getNX(rr);
+  const ng = getNX(gg);
+  const nb = getNX(bb);
+  
+  const genValArr = rr.concat(gg).concat(bb);
+  const negValArr = nr.concat(ng).concat(nb);
+  
+ 
+  const hexString = getHexString(genValArr);
+  const negHexString = getHexString(negValArr);
+  
+  const rgbObj = getRGBObj(genValArr);
+  const rgbString = getRGBString(rgbObj);
+  
+  const hslObj = getHSLObj(rgbObj);
+  const hslString = getHSLString(hslObj);
+  console.log(hslString);
+  
+  qs('#color').style.background = hexString;
+  
+  qs('#color #text1').innerHTML = hexString;
+  qs('#color #text2').innerHTML = rgbString;
+  qs('#color #text3').innerHTML = hslString;
+  
+  qs('#new').style.background = negHexString;
+  
+  return hexString;
+}
+
+generateColors();
+
+qs('#new').onclick = () => generateColors();
+
+
+
+js
